@@ -59,7 +59,7 @@ export function localStorageRepository<T>({
       }
       return candidate === expected
     }
-    // string: match partiel insensible à la casse
+    // Strings match on a case-insensitive substring
     return normalize(candidate)
       ?.toString()
       .includes(normalize(expected)?.toString() ?? "")
@@ -72,7 +72,7 @@ export function localStorageRepository<T>({
     if (!params || Object.keys(params).length === 0) return true
 
     return Object.entries(params).every(([path, expected]) => {
-      // support clé simple et clé imbriquée "a.b.c"
+      // Accepts both a plain key and a nested one, "a.b.c"
       const has = isNestedProperty(item as Record<string, any>, path)
       if (!has) return false
       const value = nestedProperty<any, any>(item, path)
@@ -101,7 +101,7 @@ export function localStorageRepository<T>({
       return { data: found as T }
     },
     getCollection: async (params) => {
-      // params: objet de filtre { "clé" ou "clé.nestée": valeur }
+      // params is a filter object: { "key" or "nested.key": value }
       const col = load()
       const items = getItemsArray(col)
 
