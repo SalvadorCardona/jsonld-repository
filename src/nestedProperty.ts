@@ -39,11 +39,11 @@ export function setDataFromKey<T extends object>(
   const keys = key.split(".")
 
   if (keys.length === 1) {
-    // Propriété simple
+    // Plain property
     return { ...obj, [key]: value }
   }
 
-  // Propriété imbriquée
+  // Nested property
   const [firstKey, ...restKeys] = keys
   const remainingPath = restKeys.join(".")
 

@@ -51,7 +51,7 @@ export function localStorageRepository<T>({
     typeof v === "string" ? v.toLowerCase().normalize("NFKD") : v
 
   const matchValue = (candidate: unknown, expected: unknown) => {
-    // égalité stricte si non string
+    // Strict equality for anything that is not a string
     if (typeof candidate !== "string" || typeof expected !== "string") {
       // gestion array includes
       if (Array.isArray(candidate)) {
