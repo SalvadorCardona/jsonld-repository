@@ -109,7 +109,7 @@ export function localStorageRepository<T>({
         matchItemByParams(it, params as any)
       )
 
-      // On renvoie une nouvelle collection JSON-LD filtrée tout en préservant la forme
+      // Return a fresh JSON-LD collection, filtered, keeping the same shape
       const data = {
         ...col,
       }
@@ -132,7 +132,7 @@ export function localStorageRepository<T>({
       const col = load()
       const items = getItemsArray(col)
 
-      // Création d’un @id s’il n’existe pas
+      // Mint an @id when the item has none
       const item = createJsonLd({ type: path, object: params })
 
       items.push(item as T)
