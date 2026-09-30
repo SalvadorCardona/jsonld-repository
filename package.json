@@ -1,6 +1,6 @@
 {
   "name": "jsonld-repository",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "CRUD repositories over a JSON-LD API: one HTTP-backed, one on localStorage, behind the same interface.",
   "keywords": [
     "json-ld",
