@@ -72,3 +72,75 @@ describe("localStorageRepository", () => {
     expect(data.member).toHaveLength(1)
   })
 })
+
+describe("localStorageRepository, finding an item from its short id", () => {
+  interface Thing {
+    "@id"?: string
+    id?: string | number
+    title?: string
+  }
+
+  const seedThings = (members: Thing[]) =>
+    setInStorage("/things", {
+      "@id": "/things",
+      "@type": "Collection",
+      member: members,
+      totalItems: members.length,
+    })
+
+  const stored = () =>
+    JSON.parse(localStorage.getItem("/things") ?? "{}").member as Thing[]
+
+  beforeEach(() => {
+    localStorage.clear()
+    seedThings([
+      { "@id": "/things/12", id: "12", title: "Twelve" },
+      { "@id": "/things/13", id: "13", title: "Thirteen" },
+    ])
+  })
+
+  it.each([{ id: "12" }, { "@id": "/things/12" }])(
+    "updates the item from %o",
+    async (identity) => {
+      const repo = localStorageRepository<Thing>({ path: "/things" })
+
+      await repo.updateItem({ ...identity, title: "x" })
+
+      expect(stored().find((it) => it["@id"] === "/things/12")?.title).toBe("x")
+      expect(stored()[1].title).toBe("Thirteen")
+    }
+  )
+
+  it.each([{ id: "12" }, { "@id": "/things/12" }])(
+    "replaces the item from %o",
+    async (identity) => {
+      const repo = localStorageRepository<Thing>({ path: "/things" })
+
+      await repo.replaceItem({ ...identity, title: "x" })
+
+      expect(stored()).toHaveLength(2)
+      expect(stored()[0].title).toBe("x")
+      expect(stored()[1].title).toBe("Thirteen")
+    }
+  )
+
+  it.each([{ id: "12" }, { "@id": "/things/12" }])(
+    "removes the item from %o",
+    async (identity) => {
+      const repo = localStorageRepository<Thing>({ path: "/things" })
+
+      await repo.removeItem(identity)
+
+      expect(stored().map((it) => it["@id"])).toEqual(["/things/13"])
+    }
+  )
+
+  it("still finds an item stored with a numeric id and no @id", async () => {
+    seedThings([{ id: 12, title: "Twelve" }])
+    const repo = localStorageRepository<Thing>({ path: "/things" })
+
+    await repo.updateItem({ id: 12, title: "x" } as any)
+
+    expect(stored()[0].title).toBe("x")
+  })
+})

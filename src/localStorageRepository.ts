@@ -46,6 +46,12 @@ export function localStorageRepository<T>({
     col.totalItems = items.length
   }
 
+  // Compares short forms, as getItem does, so an item stored under an IRI @id
+  // is found from that @id as well as from its bare id. String() keeps numeric
+  // ids working.
+  const hasId = (item: any, id: string | undefined) =>
+    String(getIdFromObject(item, true)) === getIdFromIri(String(id))
+
   // Utilitaires de filtrage
   const normalize = (v: unknown) =>
     typeof v === "string" ? v.toLowerCase().normalize("NFKD") : v
@@ -123,7 +129,7 @@ export function localStorageRepository<T>({
       const col = load()
       const items = getItemsArray(col)
       const id = getIdFromObject(params)
-      const newItems = items.filter((it: any) => getIdFromObject(it) !== id)
+      const newItems = items.filter((it: any) => !hasId(it, id))
       setItemsArray(col, newItems as T[])
       save(col)
       return { success: true }
@@ -149,7 +155,7 @@ export function localStorageRepository<T>({
         throw new Error("updateItem requires an @id or id")
       }
 
-      const idx = items.findIndex((it: any) => getIdFromObject(it) === id)
+      const idx = items.findIndex((it: any) => hasId(it, id))
       if (idx === -1) {
         throw new Error("Item not found to update with id :" + id)
       }
@@ -167,7 +173,7 @@ export function localStorageRepository<T>({
       if (!id) {
         throw new Error("replaceItem requires an @id or id")
       }
-      const idx = items.findIndex((it: any) => getIdFromObject(it) === id)
+      const idx = items.findIndex((it: any) => hasId(it, id))
       if (idx === -1) {
         throw new Error("Item not found to replace")
       }
